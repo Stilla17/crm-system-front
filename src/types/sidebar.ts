@@ -13,10 +13,6 @@ export type SidebarFooterInfo = {
   sources: string[];
 };
 
-export type SidebarFooterProps = {
-  info: SidebarFooterInfo;
-};
-
 export type SidebarNavItemProps = {
   item: SidebarItem;
   isActive: boolean;

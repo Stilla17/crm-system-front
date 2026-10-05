@@ -1,5 +1,8 @@
+import { LogOut } from "lucide-react";
+import Image from "next/image";
 import { Button } from "src/components/ui/button";
 import type { PageHeaderProps } from "src/types/page-header";
+
 
 export function PageHeader({
   title,
