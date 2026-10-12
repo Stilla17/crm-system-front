@@ -3,12 +3,20 @@ export type CompanyOverviewContent = {
   description: string;
 };
 
-export type CompanySummary = {
+export type CompanyType = (typeof COMPANY_TYPES)[number]["value"];
+export type Company = {
   id: string;
-  name: string;
-  description: string;
-  color: string;
-  sales: string | null;
-  plan?: string;
-  progress?: number;
+  companyName: string;
+  slug: string;
+  type: CompanyType;
+};
+
+export const COMPANY_TYPES = [
+  { value: "bookstore", label: "Kitob do‘koni" },
+  { value: "publisher", label: "Nashriyot" },
+] as const;
+
+export type CompanyFormValues = {
+  companyName: string;
+  type: CompanyType;
 };

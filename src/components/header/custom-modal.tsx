@@ -1,23 +1,24 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { LogOut, X } from "lucide-react";
+import { X } from "lucide-react";
 
-const ModalAvatar = ({
+const CustomModal = ({
   children,
   title,
   description,
+  trigger,
+  open,
+  onOpenChange,
 }: {
+  trigger?: React.ReactElement;
   children: React.ReactNode;
   title: string;
   description: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) => {
   return (
-    <Dialog.Root>
-      <Dialog.Trigger
-        aria-label="Tizimdan chiqish oynasini ochish"
-        className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-[#748093] outline-none transition hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-[#e8622a]"
-      >
-        <LogOut size={20} />
-      </Dialog.Trigger>
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      {trigger && <Dialog.Trigger render={trigger} />}
 
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-40 min-h-dvh bg-[#101318]/35 backdrop-blur-[2px] transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0" />
@@ -47,4 +48,4 @@ const ModalAvatar = ({
   );
 };
 
-export default ModalAvatar;
+export default CustomModal;
