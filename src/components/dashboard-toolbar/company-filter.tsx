@@ -5,21 +5,35 @@ import { useState } from "react";
 import { useDeleteCompany } from "src/hooks/companies/useDeleteCompany";
 
 import { cn } from "src/lib/utils";
-import type {
-  CompanyFilterProps,
-  CompanyOption,
-} from "src/types/dashboard-toolbar";
+
 import CustomModal from "../header/custom-modal";
+import { CompanyFilterProps, CompanyOption } from "src/types/company";
+import { toast } from "sonner";
 
 export function CompanyFilter({
   companies,
   value,
   onChange,
+  onEdit,
 }: CompanyFilterProps) {
   const [companyToDelete, setCompanyToDelete] = useState<CompanyOption | null>(
     null,
   );
   const { mutate: deleteCompany } = useDeleteCompany();
+
+  const handleDelete = () => {
+    if (!companyToDelete) return;
+
+    deleteCompany(companyToDelete.id, {
+      onSuccess: () => {
+        toast.success("Kompaniya o‘chirildi");
+        setCompanyToDelete(null);
+      },
+      onError: () => {
+        toast.error("Kompaniyani o‘chirib bo‘lmadi");
+      },
+    });
+  };
 
   return (
     <>
@@ -47,11 +61,11 @@ export function CompanyFilter({
                   hasActions && "pr-1.5",
                 )}
               >
-                {company.color ? (
+                {company.brandColor ? (
                   <span
                     aria-hidden="true"
                     className="size-2 rounded-[3px]"
-                    style={{ backgroundColor: company.color }}
+                    style={{ backgroundColor: company.brandColor }}
                   />
                 ) : null}
                 {company.label}
@@ -73,7 +87,10 @@ export function CompanyFilter({
                       className="z-50"
                     >
                       <Menu.Popup className="w-35.5 origin-(--transform-origin) rounded-[11px] border border-[#e2e5ea] bg-white p-1.5 text-[13px] text-[#252b35] shadow-[0_10px_30px_rgba(24,32,45,0.14)] outline-none transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
-                        <Menu.Item className="flex h-9 cursor-pointer items-center gap-2.5 rounded-[7px] px-2.5 outline-none transition-colors data-[highlighted]:bg-[#f2f5f9]">
+                        <Menu.Item
+                          onClick={() => onEdit(company.id)}
+                          className="flex h-9 cursor-pointer items-center gap-2.5 rounded-[7px] px-2.5 outline-none transition-colors data-[highlighted]:bg-[#f2f5f9]"
+                        >
                           <PencilLine
                             aria-hidden="true"
                             className="size-4 text-[#637083]"
@@ -118,18 +135,10 @@ export function CompanyFilter({
 
           <button
             type="button"
-            onClick={() => {
-              if (!companyToDelete) return;
-
-              deleteCompany(companyToDelete.id, {
-                onSuccess: () => {
-                  setCompanyToDelete(null);
-                },
-              });
-            }}
+            onClick={handleDelete}
             className="h-9 cursor-pointer rounded-lg bg-[#dc2626] px-4 text-sm font-medium text-white hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            O'chirish
+            O&apos;chirish
           </button>
         </div>
       </CustomModal>

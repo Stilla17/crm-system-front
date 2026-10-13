@@ -24,7 +24,7 @@ export const companyOverviewContent: Record<string, CompanyOverviewContent> = {
     title: "Kompaniyalar",
     description: "Ta‘minot har bir kompaniya uchun alohida yuritiladi.",
   },
-  "/staff": {
+  "/hr": {
     title: "Kompaniyalar",
     description: "Xodimlar har bir kompaniya bo‘yicha alohida.",
   },

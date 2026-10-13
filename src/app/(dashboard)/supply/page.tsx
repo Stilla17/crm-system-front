@@ -1,7 +1,7 @@
 import React from "react";
 
 const Supply = () => {
-  return <div>page</div>;
+  return <div>pagae</div>;
 };
 
 export default Supply;

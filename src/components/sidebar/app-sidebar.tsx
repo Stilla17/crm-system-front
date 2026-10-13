@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import { sidebarFooterInfo, sidebarSections } from "src/data/sidebar";
+import { sidebarSections } from "src/data/sidebar";
 
 import { SidebarBrand } from "./sidebar-brand";
 import { SidebarFooter } from "./sidebar-footer";

@@ -1,3 +1,5 @@
+import { Building2 } from "lucide-react";
+import { useGetCompanies } from "src/hooks/companies/useGetCompanies";
 import type { CompanySummary } from "src/types/company";
 
 export const companySummaries: CompanySummary[] = [
@@ -38,4 +40,14 @@ export const companySummaryExcludedRoutes = [
   "/tasks",
   "/dictionary",
   "/regions",
+];
+
+const { data } = useGetCompanies();
+
+export const state = [
+  {
+    desc: "Kompaniyalar soni",
+    count: data?.length,
+    icon: <Building2 />,
+  },
 ];

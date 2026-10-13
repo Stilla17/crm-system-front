@@ -23,7 +23,7 @@ export const deleteCompany = async (id: string) => {
 export const updateCompany = async (
   id: string,
   data: Partial<CompanyFormValues>,
-) => {
-  const response = await api.delete(`/companies/${id}`);
+): Promise<Company> => {
+  const response = await api.patch(`/companies/${id}`, data);
   return response.data;
 };

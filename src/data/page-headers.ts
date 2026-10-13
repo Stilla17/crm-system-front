@@ -5,6 +5,10 @@ export const pageHeaders = {
     title: "Umumiy",
     description: "Kompaniyaning bugungi holati. Raqamlar MoySklad, kassa va filial hisobotlaridan.",
   },
+  "/owner": {
+    title: "Rahbarlar",
+    description: "Kompaniyalarga rahbar tayinlash va ularning boshqaruv holatini kuzatish.",
+  },
   "/sales": {
     title: "Sotuv",
     description: "Savdo natijalari, buyurtmalar va reja bajarilishi.",
@@ -21,7 +25,7 @@ export const pageHeaders = {
     title: "Ta’minot",
     description: "Ombor qoldiqlari, xaridlar va yetkazib berish holati.",
   },
-  "/staff": {
+  "/hr": {
     title: "Kadrlar",
     description: "Kim qayerda ishlaydi, nima qiladi va rejasi qancha.",
   },

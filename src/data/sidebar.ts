@@ -5,13 +5,16 @@ export const sidebarSections: SidebarSection[] = [
     items: [{ label: "Umumiy", href: "/" }],
   },
   {
+    items: [{ label: "Raxbar", href: "/owner" }],
+  },
+  {
     label: "Bo‘limlar",
     items: [
       { label: "Sotuv", href: "/sales" },
       { label: "Marketing", href: "/marketing" },
       { label: "Moliya", href: "/finance" },
       { label: "Ta’minot", href: "/supply" },
-      { label: "Kadrlar", href: "/staff" },
+      { label: "HR", href: "/hr" },
       { label: "IT", href: "/it" },
       { label: "Hududlar", href: "/regions" },
     ],
