@@ -1,8 +1,10 @@
 "use client";
 import { Menu } from "@base-ui/react/menu";
-import { Ellipsis, PencilLine, Trash2 } from "lucide-react";
+import { Archive, Ellipsis, PencilLine, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useArchiveCompany } from "src/hooks/companies/useArchiveCompany";
 import { useDeleteCompany } from "src/hooks/companies/useDeleteCompany";
+import { useRestoreCompany } from "src/hooks/companies/useRestoreArchiveCompany";
 
 import { cn } from "src/lib/utils";
 
@@ -19,7 +21,13 @@ export function CompanyFilter({
   const [companyToDelete, setCompanyToDelete] = useState<CompanyOption | null>(
     null,
   );
+  const [companyToArchive, setCompanyToArchive] =
+    useState<CompanyOption | null>(null);
   const { mutate: deleteCompany } = useDeleteCompany();
+  const { mutate: archiveCompany, isPending: isArchiving } =
+    useArchiveCompany();
+  const { mutate: restoreCompany, isPending: isRestoring } =
+    useRestoreCompany();
 
   const handleDelete = () => {
     if (!companyToDelete) return;
@@ -35,12 +43,38 @@ export function CompanyFilter({
     });
   };
 
+  const handleArchiveAction = () => {
+    if (!companyToArchive) return;
+
+    const isArchived = companyToArchive.status === "archived";
+    const mutateCompany = isArchived ? restoreCompany : archiveCompany;
+
+    mutateCompany(companyToArchive.id, {
+      onSuccess: () => {
+        toast.success(
+          isArchived
+            ? "Kompaniya arxivdan chiqarildi"
+            : "Kompaniya arxivlandi",
+        );
+        setCompanyToArchive(null);
+      },
+      onError: () => {
+        toast.error(
+          isArchived
+            ? "Kompaniyani arxivdan chiqarib bo‘lmadi"
+            : "Kompaniyani arxivlab bo‘lmadi",
+        );
+      },
+    });
+  };
+
   return (
     <>
       <div className="flex min-w-max flex-1 items-center gap-1">
         {companies.map((company) => {
           const isActive = company.id === value;
           const hasActions = isActive && company.id !== "all";
+          const isArchived = company.status === "archived";
 
           return (
             <div
@@ -61,14 +95,17 @@ export function CompanyFilter({
                   hasActions && "pr-1.5",
                 )}
               >
-                {company.brandColor ? (
+                {company.brandColor && !isArchived ? (
                   <span
-                    aria-hidden="true"
                     className="size-2 rounded-[3px]"
                     style={{ backgroundColor: company.brandColor }}
                   />
                 ) : null}
-                {company.label}
+                <span
+                  className={isArchived ? "text-gray-400 line-through" : ""}
+                >
+                  {company.label}
+                </span>
               </button>
 
               {hasActions ? (
@@ -103,6 +140,17 @@ export function CompanyFilter({
                         >
                           <Trash2 aria-hidden="true" className="size-4" />
                           Delete
+                        </Menu.Item>
+                        <Menu.Item
+                          onClick={() => setCompanyToArchive(company)}
+                          className="flex h-9 cursor-pointer items-center gap-2.5 rounded-[7px] px-2.5 text-[#d33b3b] outline-none transition-colors data-[highlighted]:bg-[#fff1f1]"
+                        >
+                          {isArchived ? (
+                            <RotateCcw aria-hidden="true" className="size-4" />
+                          ) : (
+                            <Archive aria-hidden="true" className="size-4" />
+                          )}
+                          {isArchived ? "Arxivdan chiqarish" : "Arxivlash"}
                         </Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
@@ -139,6 +187,45 @@ export function CompanyFilter({
             className="h-9 cursor-pointer rounded-lg bg-[#dc2626] px-4 text-sm font-medium text-white hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
           >
             O&apos;chirish
+          </button>
+        </div>
+      </CustomModal>
+
+      <CustomModal
+        title={
+          companyToArchive?.status === "archived"
+            ? "Kompaniyani arxivdan chiqarish"
+            : "Kompaniyani arxivlash"
+        }
+        description={`“${companyToArchive?.label ?? ""}” kompaniyasi uchun ushbu amalni tasdiqlaysizmi?`}
+        open={companyToArchive !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCompanyToArchive(null);
+          }
+        }}
+      >
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setCompanyToArchive(null)}
+            disabled={isArchiving || isRestoring}
+            className="h-9 cursor-pointer rounded-lg border border-[#dfe2e7] px-4 text-sm text-[#4e596b] hover:bg-[#f4f5f7] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Bekor qilish
+          </button>
+
+          <button
+            type="button"
+            onClick={handleArchiveAction}
+            disabled={isArchiving || isRestoring}
+            className="h-9 cursor-pointer rounded-lg bg-[#dc2626] px-4 text-sm font-medium text-white hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isArchiving || isRestoring
+              ? "Saqlanmoqda..."
+              : companyToArchive?.status === "archived"
+                ? "Arxivdan chiqarish"
+                : "Arxivlash"}
           </button>
         </div>
       </CustomModal>

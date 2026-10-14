@@ -3,13 +3,27 @@ export type CompanyOverviewContent = {
   description: string;
 };
 
+type CompanyStatus = "active" | "archived";
+type UserRole = "super_admin" | "admin";
+
 export type CompanyType = (typeof COMPANY_TYPES)[number]["value"];
 export type Company = {
   id: string;
+  admin?: Admin | null;
   companyName: string;
   brandColor: string;
   slug: string;
   type: CompanyType;
+  status: CompanyStatus;
+};
+
+export type Admin = {
+  id: string;
+  middleName: string;
+  name: string;
+  phone: string;
+  roleId?: string;
+  roleName?: string;
 };
 
 export const COMPANY_TYPES = [
@@ -40,6 +54,7 @@ export type CompanyOption = {
   id: string;
   label: string;
   brandColor?: string;
+  status?: "active" | "archived";
 };
 
 export type CompanyFilterProps = {

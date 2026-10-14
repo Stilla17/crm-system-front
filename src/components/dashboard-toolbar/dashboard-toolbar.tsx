@@ -8,9 +8,9 @@ import { toolbarExcludedRoutes } from "src/data/dashboard-toolbar";
 import { CompanyFilter } from "./company-filter";
 import { useGetCompanies } from "src/hooks/companies/useGetCompanies";
 import type { Company } from "src/types/company";
-import FilterDate from "./filter-date";
 import CompanyEditModal from "./company-edit-modal";
 import CompanyFormModal from "./company-form-modal";
+import { useCurrentUser } from "src/hooks/users/useCurrentUser";
 
 export function DashboardToolbar() {
   const pathname = usePathname();
@@ -18,6 +18,13 @@ export function DashboardToolbar() {
   const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null);
 
   const { data: apiCompanies = [] } = useGetCompanies();
+  const { data: currentUser } = useCurrentUser();
+  const isSuperAdmin = currentUser?.roleName === "super_admin";
+  console.log(currentUser);
+
+  const visibleCompanies = apiCompanies.filter(
+    (company) => company.status !== "archived" || isSuperAdmin,
+  );
 
   const companies = [
     { id: "all", label: "Hammasi" },
@@ -25,6 +32,7 @@ export function DashboardToolbar() {
       id: company.id,
       label: company.companyName,
       brandColor: company.brandColor,
+      status: company.status,
     })),
   ];
 

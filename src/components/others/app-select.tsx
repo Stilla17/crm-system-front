@@ -30,6 +30,7 @@ export function AppSelect<T extends string = string>({
   onBlur,
   className = "",
 }: AppSelectProps<T>) {
+  const selectedOption = options.find((option) => option.value === value);
   return (
     <Select.Root
       value={value ?? null}
@@ -49,7 +50,9 @@ export function AppSelect<T extends string = string>({
             : "border-[#e1e4e9] focus:border-[#e8622a] focus:ring-[#e8622a]/10"
         } ${className}`}
       >
-        <Select.Value placeholder={placeholder} />
+        <Select.Value placeholder={placeholder}>
+          {selectedOption?.label}
+        </Select.Value>
 
         <Select.Icon>
           <ChevronDown className="size-4 text-[#748093]" />

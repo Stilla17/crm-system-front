@@ -3,7 +3,10 @@ export interface User {
   login: string;
   permissions: string[];
   name: string;
-  roleName: string;
+  phone: string;
+  middleName: string;
+  roleId?: string;
+  roleName?: string;
 }
 
 export interface LoginData {

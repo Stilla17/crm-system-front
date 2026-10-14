@@ -27,3 +27,13 @@ export const updateCompany = async (
   const response = await api.patch(`/companies/${id}`, data);
   return response.data;
 };
+// arxivega solish
+export const archiveCompany = async (id: string) => {
+  const { data } = await api.patch(`/companies/${id}/archive`);
+  return data;
+};
+// arxivedan chiqarish
+export const restoreCompany = async (id: string) => {
+  const { data } = await api.patch(`/companies/${id}/restore`);
+  return data;
+};
