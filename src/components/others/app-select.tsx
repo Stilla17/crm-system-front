@@ -17,6 +17,7 @@ interface AppSelectProps<T extends string = string> {
   ref?: React.Ref<HTMLButtonElement>;
   onBlur?: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
 export function AppSelect<T extends string = string>({
@@ -29,11 +30,12 @@ export function AppSelect<T extends string = string>({
   ref,
   onBlur,
   className = "",
+  disabled = false,
 }: AppSelectProps<T>) {
   const selectedOption = options.find((option) => option.value === value);
   return (
     <Select.Root
-      value={value ?? null}
+      value={value || null}
       onValueChange={(val) => {
         if (val !== null && onChange) {
           onChange(val as T);
@@ -44,7 +46,8 @@ export function AppSelect<T extends string = string>({
         id={id}
         ref={ref}
         onBlur={onBlur}
-        className={`flex h-11 w-full cursor-pointer items-center justify-between rounded-xl border bg-[#f9fafb] px-3.5 text-sm text-[#30272a] outline-none transition-all duration-150 hover:border-[#cbd0d7] focus:bg-white focus:ring-4 ${
+        disabled={disabled}
+        className={`flex h-11 w-full cursor-pointer items-center justify-between rounded-xl border bg-[#f9fafb] px-3.5 text-sm text-[#30272a] outline-none transition-all duration-150 hover:border-[#cbd0d7] focus:bg-white focus:ring-4 disabled:cursor-not-allowed disabled:opacity-60 ${
           hasError
             ? "border-red-500 focus:border-red-500 focus:ring-red-500/10"
             : "border-[#e1e4e9] focus:border-[#e8622a] focus:ring-[#e8622a]/10"

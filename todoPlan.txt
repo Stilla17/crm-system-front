@@ -1,0 +1,32 @@
+Plan
+
+1. Global role yaratish backendi togirlash shunga moslab ✅
+2. har bir admin alohida akkauntdan kirib test jarayonini qilsh
+3. Permisson qaysi admin qayi sahifaga permisson bolishini togirlab chiqish. bu jarayon admin yaratilvotkanda boladi.
+4. login qivotkanda agar db ishlamayotgan bolsa login xato demoqda. (DB hali ishga tushmagan)✅
+5. logoutga cursor-pointer qoshamiz✅
+6. agar foydalanuvchi boshqa kompaniya xodimi bolsa tanlagan kompaniyasiga kira olmaydigan bolsin.
+7. Raxbardan Yangi lavozim aside ni olib tashalsh.
+8. calendarni chiroyliroq dizaynda bolsin.
+9. raxbarni otkazganda animatsiay qoshish (raxbar tayinlandi boshqa kompaniyaga olib otilganda animatsiya bolsin avto drag drop)
+10. csv xisobot saqalash tugmarini olib tashlash. o'rniga profile boladi ustiga bosib ozini sahifasiga kirishi mumkin bolsin
+11. superadminda hr malumotlari korinmay qoldi.
+
+
+
+HR
+1. Xodim yaratish qoshish✅
+2. HR uchun role yaratish✅
+
+1. barcha role va userlarni ochirib tashlab boshqatan yaratish. 
+2. role yaratish uchun alohida hr bolimida dizayn qilib role yaratsa boladigan qilsh
+
+
+Profile
+1. har bir userning ozini sahifasi boladi u yerda oylik maoshi har kuni kelgan ish vaqtlari yozilib boradi.
+2. analiticka qismi ham bolishi kerak.
+
+
+Keyingi qiladigan ish
+1. moysklad ulash va sinxronizatsiyani qilib bilib turish.
+

@@ -1,6 +1,9 @@
 import { api } from "src/lib/api";
 import { Company, CompanyFormValues } from "src/types/company";
-
+type ReplaceCompanyAdminParams = {
+  id: string;
+  newAdminId: string;
+};
 export const createCompany = async (
   data: CompanyFormValues,
 ): Promise<Company> => {
@@ -11,6 +14,12 @@ export const createCompany = async (
 
 export const getAllCompanies = async (): Promise<Company[]> => {
   const response = await api.get<Company[]>("/companies");
+
+  return response.data;
+};
+
+export const getPublicCompanies = async (): Promise<Company[]> => {
+  const response = await api.get<Company[]>("/companies/public");
 
   return response.data;
 };
@@ -36,4 +45,16 @@ export const archiveCompany = async (id: string) => {
 export const restoreCompany = async (id: string) => {
   const { data } = await api.patch(`/companies/${id}/restore`);
   return data;
+};
+
+// companiya xodimini ozgartrsh
+export const replaceCompanyAdmin = async ({
+  id,
+  newAdminId,
+}: ReplaceCompanyAdminParams) => {
+  const response = await api.patch(`/companies/${id}/admin/replace`, {
+    newAdminId,
+  });
+
+  return response.data;
 };

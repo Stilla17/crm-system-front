@@ -10,20 +10,19 @@ import { useGetCompanies } from "src/hooks/companies/useGetCompanies";
 import type { Company } from "src/types/company";
 import CompanyEditModal from "./company-edit-modal";
 import CompanyFormModal from "./company-form-modal";
-import { useCurrentUser } from "src/hooks/users/useCurrentUser";
+import { useIsSuperAdmin } from "src/hooks/useIsSuperAdmin";
 
 export function DashboardToolbar() {
   const pathname = usePathname();
   const [companyId, setCompanyId] = useState("all");
   const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null);
+  const isSuperAdmin = useIsSuperAdmin();
+  const isExcluded = toolbarExcludedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
 
-  const { data: apiCompanies = [] } = useGetCompanies();
-  const { data: currentUser } = useCurrentUser();
-  const isSuperAdmin = currentUser?.roleName === "super_admin";
-  console.log(currentUser);
-
-  const visibleCompanies = apiCompanies.filter(
-    (company) => company.status !== "archived" || isSuperAdmin,
+  const { data: apiCompanies = [] } = useGetCompanies(
+    isSuperAdmin && !isExcluded,
   );
 
   const companies = [
@@ -36,11 +35,7 @@ export function DashboardToolbar() {
     })),
   ];
 
-  const isExcluded = toolbarExcludedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
-  );
-
-  if (isExcluded) return null;
+  if (isExcluded || !isSuperAdmin) return null;
 
   return (
     <div className="space-y-3 px-6 pb-4">

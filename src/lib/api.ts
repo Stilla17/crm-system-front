@@ -6,16 +6,17 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  if (typeof window === "undefined") {
-    return config;
-  }
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      typeof window !== "undefined" &&
+      error.response?.status === 401 &&
+      !window.location.pathname.startsWith("/auth")
+    ) {
+      window.location.replace("/auth/companies");
+    }
 
-  const accessToken = localStorage.getItem("accessToken");
-
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-
-  return config;
-});
+    return Promise.reject(error);
+  },
+);

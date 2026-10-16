@@ -1,6 +1,7 @@
 export type SidebarItem = {
   label: string;
   href: string;
+  superAdminOnly?: boolean;
 };
 
 export type SidebarSection = {

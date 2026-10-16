@@ -5,7 +5,7 @@ export const sidebarSections: SidebarSection[] = [
     items: [{ label: "Umumiy", href: "/" }],
   },
   {
-    items: [{ label: "Raxbar", href: "/owner" }],
+    items: [{ label: "Raxbar", href: "/owner", superAdminOnly: true }],
   },
   {
     label: "Bo‘limlar",

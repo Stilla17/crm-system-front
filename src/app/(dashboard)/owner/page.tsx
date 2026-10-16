@@ -1,37 +1,20 @@
 "use client";
-import {
-  CheckCircle2,
-  Mail,
-  Search,
-  ShieldCheck,
-  UserRoundPlus,
-  UsersRound,
-} from "lucide-react";
+import { CheckCircle2, Search, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 import CreateFormEmployee from "src/components/owner/create-form-employee";
-import { getState } from "src/data/company-summaries";
 import { useGetCompanies } from "src/hooks/companies/useGetCompanies";
-import { AppSelect } from "src/components/others/app-select";
-import { useCurrentUser } from "src/hooks/users/useCurrentUser";
-import { useSystemRoles } from "src/hooks/roles/useSystemRoles";
+import { useSystemUsers } from "src/hooks/users/useUsers";
 import { getUserRoleName } from "src/lib/get-user-role-name";
+import StateBlocks from "src/components/owner/state-blocks";
+import AsideChangeOwners from "src/components/owner/aside-change-owners";
+import { useGetRoles } from "src/hooks/roles/useGetRoles";
 
 export default function OwnerPage() {
   const { data } = useGetCompanies();
-  const { data: users = [] } = useCurrentUser();
-  console.log(users);
+  const { data: users = [] } = useSystemUsers();
 
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(
-    null,
-  );
-  const { data: roles = [] } = useSystemRoles();
-
-  const countAdmin =
-    data?.filter((company) => company.admin != null).length ?? 0;
-  const state = getState(data?.length ?? 0, countAdmin);
-  console.log(data);
+  const { data: roles = [] } = useGetRoles();
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
   const filterCompany = normalizedSearchTerm
@@ -40,38 +23,9 @@ export default function OwnerPage() {
       )
     : (data ?? []);
 
-  const companyOptions =
-    data?.map((company) => ({
-      value: company.id,
-      label: company.companyName,
-    })) ?? [];
-
   return (
     <div className="px-6 pb-8">
-      <section
-        aria-label="Rahbarlar bo‘yicha qisqa ma’lumot"
-        className="grid gap-3.5 md:grid-cols-3"
-      >
-        {state?.map((company, index) => (
-          <div
-            key={index}
-            className="rounded-[17px] border border-[#e0e3e9] bg-white p-4"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[13px] text-[#687385]">{company.desc}</p>
-                <p className="mt-1.5 text-[28px] font-semibold tracking-[-0.04em] text-[#15191f]">
-                  {company.count}
-                </p>
-              </div>
-              <div className="flex size-9 items-center justify-center rounded-[11px] bg-[#f1f3f6] text-[#596679]">
-                {company.icon}
-              </div>
-            </div>
-          </div>
-        ))}
-      </section>
-
+      <StateBlocks />
       <div className="mt-4 grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <section
           aria-labelledby="company-leadership-title"
@@ -210,93 +164,7 @@ export default function OwnerPage() {
           </div>
         </section>
 
-        <aside className="rounded-[17px] border border-[#e0e3e9] bg-white p-5 xl:sticky xl:top-4">
-          <div className="flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-[#fcece6] text-[#bd572b]">
-              <UserRoundPlus aria-hidden="true" className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-[15px] font-semibold text-[#15191f]">
-                Rahbar tayinlash
-              </h2>
-              <p className="mt-1 text-[12px] leading-[17px] text-[#7a8595]">
-                Kompaniya va mos nomzodni tanlang
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-5 space-y-4">
-            <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
-                Kompaniya
-              </span>
-
-              <AppSelect
-                id="companyId"
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                options={companyOptions}
-                placeholder="Kompaniyani tanlang"
-              />
-            </label>
-
-            <fieldset>
-              <legend className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
-                Rahbar nomzodi
-              </legend>
-              <div className="space-y-2">
-                {users.map((user) => {
-                  const initials = `${user.name?.charAt(0) ?? ""}${
-                    user.middleName?.charAt(0) ?? ""
-                  }`.toUpperCase();
-                  const roleName =
-                    user.roleName ??
-                    roles.find((role) => role.id === user.roleId)?.roleName;
-
-                  return (
-                    <label
-                      key={user.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-[11px] border border-[#e2e5ea] px-3 py-2.5 transition has-checked:border-[#e8622a] has-checked:bg-[#fff8f4]"
-                    >
-                      <input
-                        type="radio"
-                        name="manager-candidate"
-                        value={user.id}
-                        checked={selectedUserId === user.id}
-                        onChange={() => setSelectedUserId(user.id)}
-                        className="peer sr-only"
-                      />
-
-                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#e8efff] text-[11px] font-semibold text-[#3159a5]">
-                        {initials}
-                      </span>
-
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[13px] font-semibold text-[#2c333d]">
-                          {user.name} {user.middleName}
-                        </span>
-
-                        <span className="mt-0.5 block truncate text-[11px] text-[#808a98]">
-                          {roleName ?? "Rol biriktirilmagan"} · {user.phone}
-                        </span>
-                      </span>
-
-                      <span className="flex size-[18px] items-center justify-center rounded-full border border-[#cdd2da] bg-white after:size-2 after:rounded-full peer-checked:border-[#e8622a] peer-checked:after:bg-[#e8622a]" />
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-
-            <button
-              type="button"
-              className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#e8622a] px-4 text-[13px] font-semibold text-white transition hover:bg-[#d85620] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8622a]"
-            >
-              <UsersRound aria-hidden="true" className="size-4" />
-              Rahbarni tayinlash
-            </button>
-          </div>
-        </aside>
+        <AsideChangeOwners />
       </div>
 
       <CreateFormEmployee />

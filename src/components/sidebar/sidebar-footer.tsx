@@ -12,7 +12,11 @@ export function SidebarFooter() {
         title="Profil"
         description="Hisobingizni boshqarish"
         trigger={
-          <button type="button" aria-label="Tizimdan chiqish oynasini ochish">
+          <button
+            type="button"
+            aria-label="Tizimdan chiqish oynasini ochish"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700"
+          >
             <LogOut className="size-4" />
           </button>
         }
