@@ -7,15 +7,15 @@ import { Company } from "src/types/company";
 
 export const useGetCompanies = (enabled = true) => {
   return useQuery<Company[]>({
-    queryKey: ["companies"],
-    queryFn: () => getAllCompanies(),
+    queryKey: ["companies", "private"],
+    queryFn: getAllCompanies,
     enabled,
   });
 };
 
 export const useGetPublicCompanies = () => {
   return useQuery<Company[]>({
-    queryKey: ["companies"],
-    queryFn: () => getPublicCompanies(),
+    queryKey: ["companies", "public"],
+    queryFn: getPublicCompanies,
   });
 };

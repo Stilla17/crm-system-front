@@ -18,7 +18,6 @@ const chartColors = [
 
 export default function CompanySelectionPage() {
   const { data: companies = [] } = useGetPublicCompanies();
-  console.log(companies);
 
   return (
     <main className="flex min-h-svh items-center justify-center bg-[#171a20] px-5 py-12 text-white sm:px-8">

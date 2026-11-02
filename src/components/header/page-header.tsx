@@ -21,7 +21,7 @@ export function PageHeader({
         </p>
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
+      {/* <div className="flex shrink-0 items-center gap-3">
         <Button
           type="button"
           variant="outline"
@@ -37,7 +37,7 @@ export function PageHeader({
         >
           Hisobotni saqlash
         </Button>
-      </div>
+      </div> */}
     </header>
   );
 }

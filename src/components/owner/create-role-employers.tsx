@@ -8,6 +8,7 @@ const CreateRoleForEmployers = () => {
   const { mutate: createRole, isPending } = useCreateRole();
   const [slugRole, setSlugRole] = useState("");
   const [roleName, setRoleName] = useState("");
+  const [isCompanyAdmin, setIsCompanyAdmin] = useState(false);
 
   const handleSubmitRole = () => {
     const normalizedRoleName = roleName.trim();
@@ -23,6 +24,7 @@ const CreateRoleForEmployers = () => {
         roleName: normalizedRoleName,
         slug: normalizedSlug,
         permissions: [],
+        isCompanyAdmin,
         isActive: true,
       },
       {
@@ -30,6 +32,7 @@ const CreateRoleForEmployers = () => {
           toast.success("Lavozim yaratildi");
           setRoleName("");
           setSlugRole("");
+          setIsCompanyAdmin(false);
         },
         onError: () => {
           toast.error("Lavozim yaratishda xatolik yuz berdi");
@@ -55,7 +58,7 @@ const CreateRoleForEmployers = () => {
             Yangi lavozim
           </h3>
           <p className="mt-1 text-[12px] leading-4.25 text-[#7a8595]">
-            Kompaniya uchun yangi rol va ruxsatlar yarating
+            Barcha kompaniyalar uchun umumiy rol yarating
           </p>
         </div>
       </div>
@@ -85,6 +88,24 @@ const CreateRoleForEmployers = () => {
             placeholder="sales-manager"
             className="h-11 w-full rounded-[11px] border border-[#dde1e7] bg-white px-3 font-mono text-[12px] text-[#303742] outline-none transition placeholder:text-[#a0a8b3] focus:border-[#e8622a] focus:ring-4 focus:ring-[#e8622a]/10"
           />
+        </label>
+
+        <label className="flex cursor-pointer items-start gap-3 rounded-[11px] border border-[#e3e6ea] bg-white px-3 py-3 transition has-checked:border-[#efb096] has-checked:bg-[#fff8f4]">
+          <input
+            type="checkbox"
+            checked={isCompanyAdmin}
+            onChange={(event) => setIsCompanyAdmin(event.target.checked)}
+            disabled={isPending}
+            className="mt-0.5 size-4 shrink-0 accent-[#e8622a]"
+          />
+          <span>
+            <span className="block text-[12px] font-semibold text-[#3d4653]">
+              Kompaniya admin roli
+            </span>
+            <span className="mt-0.5 block text-[11px] leading-4 text-[#8791a0]">
+              Kompaniya rahbari sifatida ishlatiladigan yagona global rol
+            </span>
+          </span>
         </label>
 
         {/* <fieldset>

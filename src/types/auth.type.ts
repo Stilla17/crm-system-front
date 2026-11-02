@@ -13,12 +13,18 @@ export interface User {
 }
 
 export interface LoginData {
+  companyId: string;
   login: string;
   password: string;
 }
 
 export interface AuthResponse {
   message: string;
+  company: {
+    id: string;
+    companyName: string;
+  };
+  employee: AuthProfile;
 }
 
 export interface AuthProfile {

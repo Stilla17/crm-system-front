@@ -1,27 +1,24 @@
 "use client";
-import {
-  Calendar,
-  Eye,
-  EyeOff,
-  KeyRound,
-  Phone,
-  UserPlus,
-} from "lucide-react";
+import { Eye, EyeOff, KeyRound, Phone, UserPlus } from "lucide-react";
 import { AppSelect } from "../others/app-select";
 import { useGetCompanies } from "src/hooks/companies/useGetCompanies";
 import { Controller, useForm } from "react-hook-form";
 import { useCreateCompanyUser } from "src/hooks/users/useCreateCompanyUser";
-import type { EmployeeFormValues } from "src/types/employee.type";
+import type {
+  EmployeeFormValues,
+  EmployeeGender,
+} from "src/types/employee.type";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
 import { formatUzPhone } from "src/lib/formatter-phone";
 import CreateRoleForEmployers from "./create-role-employers";
 import { useGetRoles } from "src/hooks/roles/useGetRoles";
 import { useState } from "react";
-import { useCreateUser } from "src/hooks/users/useCreateUser";
-import type { CreateEmployeePayload } from "src/types/employee.type";
+import { useCreateEmployeeWithUser } from "src/hooks/employees/useCreateEmployeeWithUser";
+import type { CreateUserPayload } from "src/types/employee.type";
+import { DateField } from "../dashboard-toolbar/date-field";
 
-const DEFAULT_VALUES: EmployeeFormValues = {
+const DEFAULT_VALUES: CreateEmployeeFormValues = {
   companyId: "",
   roleId: "",
   name: "",
@@ -30,10 +27,20 @@ const DEFAULT_VALUES: EmployeeFormValues = {
   date: "",
   login: "",
   password: "",
+  gender: "",
 };
 
 type CreateFormEmployeeProps = {
   mode?: "system" | "company";
+};
+
+type CreateEmployeeFormValues = EmployeeFormValues & {
+  gender: EmployeeGender | "";
+};
+
+const toVerifixDate = (value: string) => {
+  const [year, month, day] = value.split("-");
+  return day && month && year ? `${day}.${month}.${year}` : value;
 };
 
 const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
@@ -48,16 +55,15 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
     reset,
     setValue,
     formState: { errors },
-  } = useForm<EmployeeFormValues>({
+  } = useForm<CreateEmployeeFormValues>({
     defaultValues: DEFAULT_VALUES,
   });
 
-  const {
-    mutate: createCompanyUser,
-    isPending: isCreatingCompanyUser,
-  } = useCreateCompanyUser();
-  const { mutate: createUser, isPending: isCreatingUser } = useCreateUser();
-  const isPending = isCreatingCompanyUser || isCreatingUser;
+  const { mutate: createCompanyUser, isPending: isCreatingCompanyUser } =
+    useCreateCompanyUser();
+  const { mutate: createEmployeeWithUser, isPending: isCreatingEmployee } =
+    useCreateEmployeeWithUser();
+  const isPending = isCreatingCompanyUser || isCreatingEmployee;
   const {
     data: roles = [],
     isLoading: areRolesLoading,
@@ -65,7 +71,7 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
     refetch: refetchRoles,
   } = useGetRoles();
 
-  const onSubmit = (formData: EmployeeFormValues) => {
+  const onSubmit = (formData: CreateEmployeeFormValues) => {
     const normalizedData = {
       ...formData,
       name: formData.name.trim(),
@@ -73,33 +79,7 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
       login: formData.login.trim().toLowerCase(),
       phone: formData.phone.replace(/[\s()-]/g, ""),
     };
-    const mutationOptions = {
-      onSuccess: () => {
-        toast.success("Xodim muvaffaqiyatli qo‘shildi");
-        reset();
-      },
-      onError: (error: unknown) => {
-        const responseData = isAxiosError(error)
-          ? (error.response?.data as
-              | { message?: string | string[] }
-              | undefined)
-          : undefined;
-        const message = responseData?.message;
-
-        toast.error(
-          Array.isArray(message)
-            ? message[0]
-            : message || "Xodimni qo‘shishda xatolik yuz berdi",
-        );
-      },
-    };
-
-    if (isSystemMode) {
-      createCompanyUser(normalizedData, mutationOptions);
-      return;
-    }
-
-    const userData: CreateEmployeePayload = {
+    const userData: CreateUserPayload = {
       roleId: normalizedData.roleId,
       name: normalizedData.name,
       middleName: normalizedData.middleName,
@@ -109,7 +89,58 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
       password: normalizedData.password,
     };
 
-    createUser(userData, mutationOptions);
+    const handleError = (error: unknown) => {
+      const responseData = isAxiosError(error)
+        ? (error.response?.data as { message?: string | string[] } | undefined)
+        : undefined;
+      const message = responseData?.message;
+
+      toast.error(
+        Array.isArray(message)
+          ? message[0]
+          : message || "Xodimni qo‘shishda xatolik yuz berdi",
+      );
+    };
+
+    if (isSystemMode) {
+      createCompanyUser(
+        { ...userData, companyId: normalizedData.companyId },
+        {
+          onSuccess: () => {
+            toast.success("Xodim akkaunti muvaffaqiyatli qo‘shildi");
+            reset();
+          },
+          onError: handleError,
+        },
+      );
+      return;
+    }
+
+    createEmployeeWithUser(
+      {
+        user: userData,
+        employee: {
+          firstName: normalizedData.name,
+          lastName: normalizedData.middleName,
+          gender: normalizedData.gender as EmployeeGender,
+          phone: normalizedData.phone,
+          birthDate: toVerifixDate(normalizedData.date),
+        },
+      },
+      {
+        onSuccess: ({ employee }) => {
+          if (employee.syncStatus === "synced") {
+            toast.success("Xodim CRM va Verifix’ga muvaffaqiyatli qo‘shildi");
+          } else {
+            toast.warning(
+              "Xodim CRM’ga qo‘shildi, ammo Verifix bilan sinxronlashmadi",
+            );
+          }
+          reset();
+        },
+        onError: handleError,
+      },
+    );
   };
 
   const companyOptions =
@@ -171,32 +202,32 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
             {/* Kompaniya tanlash (Controller orqali) */}
             {isSystemMode && (
               <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
-                Kompaniya *
-              </span>
-              <Controller
-                name="companyId"
-                control={control}
-                rules={{ required: "Kompaniyani tanlang" }}
-                render={({ field }) => (
-                  <>
-                    <AppSelect
-                      id="companyId"
-                      ref={field.ref}
-                      value={field.value}
-                      onBlur={field.onBlur}
-                      onChange={(companyId) => {
-                        field.onChange(companyId);
-                        setValue("roleId", "");
-                      }}
-                      options={companyOptions}
-                      placeholder="Kompaniyani tanlang"
-                      hasError={Boolean(errors.companyId)}
-                    />
-                    {fieldError(errors.companyId?.message)}
-                  </>
-                )}
-              />
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
+                  Kompaniya *
+                </span>
+                <Controller
+                  name="companyId"
+                  control={control}
+                  rules={{ required: "Kompaniyani tanlang" }}
+                  render={({ field }) => (
+                    <>
+                      <AppSelect
+                        id="companyId"
+                        ref={field.ref}
+                        value={field.value}
+                        onBlur={field.onBlur}
+                        onChange={(companyId) => {
+                          field.onChange(companyId);
+                          setValue("roleId", "");
+                        }}
+                        options={companyOptions}
+                        placeholder="Kompaniyani tanlang"
+                        hasError={Boolean(errors.companyId)}
+                      />
+                      {fieldError(errors.companyId?.message)}
+                    </>
+                  )}
+                />
               </label>
             )}
 
@@ -273,6 +304,35 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
               {fieldError(errors.middleName?.message)}
             </label>
 
+            <label className="block">
+              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
+                Jinsi *
+              </span>
+              <Controller
+                name="gender"
+                control={control}
+                rules={{ required: "Jinsini tanlang" }}
+                render={({ field, fieldState }) => (
+                  <>
+                    <AppSelect<EmployeeGender>
+                      id="gender"
+                      ref={field.ref}
+                      value={field.value || null}
+                      onBlur={field.onBlur}
+                      onChange={field.onChange}
+                      options={[
+                        { value: "M", label: "Erkak" },
+                        { value: "F", label: "Ayol" },
+                      ]}
+                      placeholder="Jinsini tanlang"
+                      hasError={Boolean(fieldState.error)}
+                    />
+                    {fieldError(fieldState.error?.message)}
+                  </>
+                )}
+              />
+            </label>
+
             {/* Telefon */}
             <label className="block">
               <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
@@ -308,26 +368,34 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
               {fieldError(errors.phone?.message)}
             </label>
 
-            {/* Tug'ilgan sana */}
-            <label className="block">
+            {/* Tug‘ilgan sana */}
+            <div className="block">
               <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
                 Tug‘ilgan sana *
               </span>
-              <span className="relative block">
-                <Calendar
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8b95a4]"
-                />
-                <input
-                  {...register("date", {
-                    required: "Tug‘ilgan sanani kiriting",
-                  })}
-                  type="date"
-                  className="h-11 w-full rounded-[11px] border border-[#dde1e7] bg-[#f9fafb] pl-10 pr-3 text-[13px] text-[#303742] outline-none transition placeholder:text-[#9ba3af] focus:border-[#e8622a] focus:bg-white focus:ring-4 focus:ring-[#e8622a]/10"
-                />
-              </span>
-              {fieldError(errors.date?.message)}
-            </label>
+
+              <Controller
+                name="date"
+                control={control}
+                rules={{
+                  required: "Tug‘ilgan sanani tanlang",
+                }}
+                render={({ field, fieldState }) => (
+                  <>
+                    <DateField
+                      ariaLabel="Tug‘ilgan sanani tanlang"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      hasError={Boolean(fieldState.error)}
+                      className="w-full"
+                    />
+
+                    {fieldError(fieldState.error?.message)}
+                  </>
+                )}
+              />
+            </div>
 
             {/* Login */}
             <label className="block">
@@ -406,7 +474,7 @@ const CreateFormEmployee = ({ mode = "system" }: CreateFormEmployeeProps) => {
           </div>
         </form>
 
-        <CreateRoleForEmployers />
+        {isSystemMode && <CreateRoleForEmployers />}
       </div>
     </section>
   );

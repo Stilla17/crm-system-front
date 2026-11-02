@@ -24,4 +24,9 @@ export const periods: PeriodOption[] = [
   { id: "2027-05", label: "Dek", disabled: true },
 ];
 
-export const toolbarExcludedRoutes = ["/data-entry", "/tasks", "/dictionary"];
+export const toolbarExcludedRoutes = [
+  "/data-entry",
+  "/tasks",
+  "/dictionary",
+  "/profile",
+];

@@ -8,6 +8,7 @@ import { getUserRoleName } from "src/lib/get-user-role-name";
 import StateBlocks from "src/components/owner/state-blocks";
 import AsideChangeOwners from "src/components/owner/aside-change-owners";
 import { useGetRoles } from "src/hooks/roles/useGetRoles";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 export default function OwnerPage() {
   const { data } = useGetCompanies();
@@ -15,6 +16,8 @@ export default function OwnerPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const { data: roles = [] } = useGetRoles();
+
+  const reduceMotion = useReducedMotion();
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
   const filterCompany = normalizedSearchTerm
@@ -111,51 +114,79 @@ export default function OwnerPage() {
                     </td>
 
                     <td className="w-[44%] px-5 py-[18px] align-middle">
-                      {item.admin ? (
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#eef1f5] text-xs font-semibold text-[#465367]">
-                            {item.admin.name.at(0) +
-                              "" +
-                              item.admin.middleName.at(0)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="truncate text-[13px] font-semibold text-[#252b34]">
-                                {item.admin.name + " "}
-                                {item.admin.middleName}
-                              </p>
-                              <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f6ee] px-2 py-0.5 text-[10px] font-semibold text-[#24704e]">
-                                <CheckCircle2
-                                  aria-hidden="true"
-                                  className="size-3"
-                                />
-                                Faol
-                              </span>
-                            </div>
-                            <p className="mt-0.5 truncate text-xs text-[#7b8695]">
-                              {getUserRoleName(item.admin.id, users, roles)} ·{" "}
-                              {item.admin.phone}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3 rounded-[11px] border border-dashed border-[#e4bda8] bg-[#fff8f3] px-3 py-2.5">
-                          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#fbe7dc] text-[#bd5d31]">
-                            <UserRoundPlus
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </div>
-                          <div>
-                            <p className="text-[13px] font-medium text-[#7c4025]">
-                              Rahbar tayinlanmagan
-                            </p>
-                            <p className="mt-0.5 text-[11px] text-[#aa755d]">
-                              Nomzod tanlash talab qilinadi
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                      <div className="overflow-hidden">
+                        <AnimatePresence initial={false} mode="wait">
+                          <motion.div
+                            key={item.admin?.id ?? "no-admin"}
+                            initial={{
+                              opacity: 0,
+                              y: reduceMotion ? 0 : 10,
+                            }}
+                            animate={{
+                              opacity: 1,
+                              y: 0,
+                            }}
+                            exit={{
+                              opacity: 0,
+                              y: reduceMotion ? 0 : -10,
+                            }}
+                            transition={{
+                              duration: reduceMotion ? 0 : 0.2,
+                              ease: "easeOut",
+                            }}
+                          >
+                            {item.admin ? (
+                              <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#eef1f5] text-xs font-semibold text-[#465367]">
+                                  {item.admin.name.at(0) +
+                                    "" +
+                                    item.admin.middleName.at(0)}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <p className="truncate text-[13px] font-semibold text-[#252b34]">
+                                      {item.admin.name + " "}
+                                      {item.admin.middleName}
+                                    </p>
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f6ee] px-2 py-0.5 text-[10px] font-semibold text-[#24704e]">
+                                      <CheckCircle2
+                                        aria-hidden="true"
+                                        className="size-3"
+                                      />
+                                      Faol
+                                    </span>
+                                  </div>
+                                  <p className="mt-0.5 truncate text-xs text-[#7b8695]">
+                                    {getUserRoleName(
+                                      item.admin.id,
+                                      users,
+                                      roles,
+                                    )}{" "}
+                                    · {item.admin.phone}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-3 rounded-[11px] border border-dashed border-[#e4bda8] bg-[#fff8f3] px-3 py-2.5">
+                                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#fbe7dc] text-[#bd5d31]">
+                                  <UserRoundPlus
+                                    aria-hidden="true"
+                                    className="size-4"
+                                  />
+                                </div>
+                                <div>
+                                  <p className="text-[13px] font-medium text-[#7c4025]">
+                                    Rahbar tayinlanmagan
+                                  </p>
+                                  <p className="mt-0.5 text-[11px] text-[#aa755d]">
+                                    Nomzod tanlash talab qilinadi
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -6,7 +6,9 @@ import { useIsFetching } from "@tanstack/react-query";
 const DashboardLoadingOverlay = () => {
   const initialQueriesCount = useIsFetching({
     predicate: (query) =>
-      query.state.data === undefined && query.state.fetchStatus === "fetching",
+      query.meta?.skipGlobalLoading !== true &&
+      query.state.data === undefined &&
+      query.state.fetchStatus === "fetching",
   });
 
   if (initialQueriesCount === 0) {

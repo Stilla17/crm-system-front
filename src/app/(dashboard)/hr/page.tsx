@@ -1,9 +1,9 @@
-import { UsersTable } from "src/components/hr/users-table";
+import { StaffTable } from "src/components/hr/staff-table";
 
 const Staff = () => {
   return (
     <div className="px-6 pb-8">
-      <UsersTable />
+      <StaffTable />
     </div>
   );
 };

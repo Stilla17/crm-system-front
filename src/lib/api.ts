@@ -14,7 +14,7 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !window.location.pathname.startsWith("/auth")
     ) {
-      window.location.replace("/auth/companies");
+      window.location.replace("/api/auth/clear-session");
     }
 
     return Promise.reject(error);

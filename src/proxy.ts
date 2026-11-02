@@ -6,6 +6,9 @@ export function proxy(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
   const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
   const isSuperAdminPage = request.nextUrl.pathname.startsWith("/owner");
+  const isProfilePage =
+    request.nextUrl.pathname === "/profile" ||
+    request.nextUrl.pathname.startsWith("/profile/");
 
   if (!accessToken && !isAuthPage) {
     return NextResponse.redirect(new URL("/auth/companies", request.url));
@@ -16,6 +19,10 @@ export function proxy(request: NextRequest) {
   }
 
   if (accessToken && isSuperAdminPage && !isSuperAdminToken(accessToken)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (accessToken && isProfilePage && isSuperAdminToken(accessToken)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

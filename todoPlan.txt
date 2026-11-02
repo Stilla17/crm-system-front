@@ -1,32 +1,62 @@
 Plan
 
 1. Global role yaratish backendi togirlash shunga moslab ✅
-2. har bir admin alohida akkauntdan kirib test jarayonini qilsh
-3. Permisson qaysi admin qayi sahifaga permisson bolishini togirlab chiqish. bu jarayon admin yaratilvotkanda boladi.
+2. har bir admin alohida akkauntdan kirib test jarayonini qilsh✅
+3. Permisson qaysi admin qaysi sahifaga permisson bolishini togirlab chiqish. bu jarayon admin yaratilvotkanda boladi.❌
 4. login qivotkanda agar db ishlamayotgan bolsa login xato demoqda. (DB hali ishga tushmagan)✅
 5. logoutga cursor-pointer qoshamiz✅
-6. agar foydalanuvchi boshqa kompaniya xodimi bolsa tanlagan kompaniyasiga kira olmaydigan bolsin.
-7. Raxbardan Yangi lavozim aside ni olib tashalsh.
-8. calendarni chiroyliroq dizaynda bolsin.
+6. agar foydalanuvchi boshqa kompaniya xodimi bolsa tanlagan kompaniyasiga kira olmaydigan bolsin.✅
+7. Raxbardan Yangi lavozim aside ni olib tashlash.❌
+8. calendarni chiroyliroq dizaynda bolsin.✅
 9. raxbarni otkazganda animatsiay qoshish (raxbar tayinlandi boshqa kompaniyaga olib otilganda animatsiya bolsin avto drag drop)
-10. csv xisobot saqalash tugmarini olib tashlash. o'rniga profile boladi ustiga bosib ozini sahifasiga kirishi mumkin bolsin
-11. superadminda hr malumotlari korinmay qoldi.
-
-
+10. csv xisobot saqalash tugmarini olib tashlash. o'rniga profile boladi ustiga bosib ozini sahifasiga kirishi mumkin bolsin✅
+11. superadminda hr malumotlari korinmay qoldi.✅
+12. companiyani ustiga boskanda agar u osha companiya xodimi bolsa dashboardga kirsin. bolmasam superadmin bolib hohlagan kompaniyasiga kira olsin✅
+13. qaysi companiyani tanlasa usha companiyani logosi chqib tursin.✅
+14. hammasi bosilganda hamma xodimlar korinib turgan bolsin.✅
+15. xodimni super admin malumotlarini kora olmayapti.✅
+16. verifixdan kelgan xodimni rolini berish kerak
+17. xodim qoshayotkanda inputga qol bilan yozish mumkin bolsin.✅
+18. tozalash bosilsa tugulgan sana tozalanmadi✅
+19. crmga xodim qoshildi notogri qoshilgan xodimni ochirib yubormoqchi bolsam verifixdan ham crm dan ham ochadimi?
+20. xodim qaysi kompaniyaga ishlashini ham yozib chiqish kerak.✅
+21. verifixdan kelgan xodim crm tizimga ham qoshilsin alohida qoshib otrmaylik✅
+22. super admin uchun profile berkildi.✅
 
 HR
 1. Xodim yaratish qoshish✅
 2. HR uchun role yaratish✅
+3. barcha xodimlar bolimiga paginatsiya qoshish kerak.
 
-1. barcha role va userlarni ochirib tashlab boshqatan yaratish. 
-2. role yaratish uchun alohida hr bolimida dizayn qilib role yaratsa boladigan qilsh
+1. barcha role va userlarni ochirib tashlab boshqatan yaratish. ✅
+2. role yaratish uchun alohida hr bolimida dizayn qilib role yaratsa boladigan qilsh✅
 
 
 Profile
-1. har bir userning ozini sahifasi boladi u yerda oylik maoshi har kuni kelgan ish vaqtlari yozilib boradi.
+1. har bir userning ozini sahifasi boladi u yerda oylik maoshi har kuni kelgan ish vaqtlari yozilib boradi.✅
 2. analiticka qismi ham bolishi kerak.
+3. Super adminda profile shart emas chunki u super admin.
+4. componentlarga ajratib chiqish kerak.✅
+5. davomat, oylik, ish kuni, malumoti
+6. foydalanuvchi hozir online holatini korish 
+7. yozishma paneli
+8. vazifalar paneli.
 
 
 Keyingi qiladigan ish
 1. moysklad ulash va sinxronizatsiyani qilib bilib turish.
+2. Verifix integratisya qilinadi.
 
+
+Role bolimi 
+1. u yerdan qaysi bolim xodimi qaysi bolimlarni malumotlarini kora olsin shularni ruxsatini olib berish.
+ 
+
+Verifix
+1. Profile qismiga xodimni malumotlarini berish.
+
+Savdo bolimi
+1. ABC tizim qilish 
+2. filyallarda bor kitoblar
+3. skladdagi kitoblar 
+4. filyallarda tez chiqib ketvotkan kitoblar 

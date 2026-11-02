@@ -52,9 +52,7 @@ export function CompanyFilter({
     mutateCompany(companyToArchive.id, {
       onSuccess: () => {
         toast.success(
-          isArchived
-            ? "Kompaniya arxivdan chiqarildi"
-            : "Kompaniya arxivlandi",
+          isArchived ? "Kompaniya arxivdan chiqarildi" : "Kompaniya arxivlandi",
         );
         setCompanyToArchive(null);
       },

@@ -1,10 +1,19 @@
 "use client";
 
-import { Search, ShieldCheck, UserPlus, UsersRound } from "lucide-react";
+import {
+  Download,
+  Search,
+  ShieldCheck,
+  UserPlus,
+  UsersRound,
+} from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useGetRoles } from "src/hooks/roles/useGetRoles";
 import { useUsers } from "src/hooks/users/useUsers";
+import { useSearchParams } from "next/navigation";
+import { useAuthProfile } from "src/hooks/users/useAuthProfile";
+import { toast } from "sonner";
 
 const formatDate = (value?: string) => {
   if (!value) return "—";
@@ -17,8 +26,28 @@ const formatDate = (value?: string) => {
 };
 
 export function UsersTable() {
+  const searchParams = useSearchParams();
+  const selectedCompanyId = searchParams.get("companyId") ?? "all";
+
+  const { data: profile, isLoading: isProfileLoading } = useAuthProfile();
+
+  const isSuperAdmin =
+    profile?.roleScope === "system" && profile.companyId === null;
+
+  const {
+    data: users = [],
+    isLoading: isUsersLoading,
+    isError,
+    refetch,
+  } = useUsers({
+    isSuperAdmin,
+    companyId: selectedCompanyId,
+    enabled: Boolean(profile),
+  });
+
+  const isLoading = isProfileLoading || isUsersLoading;
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: users = [], isLoading, isError, refetch } = useUsers();
+
   const { data: roles = [] } = useGetRoles();
 
   const visibleUsers = useMemo(() => {
@@ -62,6 +91,21 @@ export function UsersTable() {
               className="min-w-0 flex-1 bg-transparent text-[13px] text-[#303742] outline-none placeholder:text-[#9aa2ae]"
             />
           </label>
+
+          {isSuperAdmin && selectedCompanyId === "all" && (
+            <button
+              type="button"
+              onClick={() =>
+                toast.info(
+                  "Verifixdan import qilish uchun avval kompaniyani tanlang",
+                )
+              }
+              className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-[#dce1e7] bg-white px-4 text-[13px] font-semibold text-[#435782] transition hover:bg-[#f6f8fc]"
+            >
+              <Download aria-hidden="true" className="size-4" />
+              Verifixdan import
+            </button>
+          )}
 
           <Link
             href="/hr/create"
@@ -114,16 +158,22 @@ export function UsersTable() {
                 }`.toUpperCase();
 
                 return (
-                  <tr key={user.id} className="transition-colors hover:bg-[#fafbfc]">
+                  <tr
+                    key={user.id}
+                    className="transition-colors hover:bg-[#fafbfc]"
+                  >
                     <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
+                      <Link
+                        href={`/hr/${user.id}`}
+                        className="group flex items-center gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8622a]"
+                      >
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#e8efff] text-[11px] font-semibold text-[#3159a5]">
                           {initials}
                         </span>
-                        <span className="font-medium text-[13px] text-[#252b34]">
+                        <span className="font-medium text-[13px] text-[#252b34] transition-colors group-hover:text-[#d85620]">
                           {user.name} {user.middleName}
                         </span>
-                      </div>
+                      </Link>
                     </td>
                     <td className="px-4 py-4 text-[13px] text-[#596477]">
                       {user.login}

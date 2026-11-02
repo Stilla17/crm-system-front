@@ -12,7 +12,10 @@ export type PeriodFilterProps = {
 
 export type DateFieldProps = {
   ariaLabel: string;
-  label: string;
+  label?: string;
   className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  onBlur?: () => void;
+  hasError?: boolean;
 };
-

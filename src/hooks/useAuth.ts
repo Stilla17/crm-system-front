@@ -32,6 +32,14 @@ export const useLogin = () => {
         return;
       }
 
+      if (error.response.status === 403) {
+        toast.warning(
+          error.response.data?.message ??
+            "Siz tanlangan kompaniya xodimi emassiz",
+        );
+        return;
+      }
+
       toast.error("Tizimga kirishda xatolik yuz berdi");
     },
   });

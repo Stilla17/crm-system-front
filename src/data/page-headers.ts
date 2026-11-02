@@ -29,6 +29,10 @@ export const pageHeaders = {
     title: "Kadrlar",
     description: "Kim qayerda ishlaydi, nima qiladi va rejasi qancha.",
   },
+  "/profile": {
+    title: "Mening profilim",
+    description: "Shaxsiy ma’lumotlar, davomat va ish haqi ko‘rsatkichlari.",
+  },
   "/it": {
     title: "IT",
     description: "Tizimlar, texnik vazifalar va xizmatlar holati.",

@@ -1,5 +1,5 @@
 "use client";
-import { UserRoundPlus, UsersRound } from "lucide-react";
+import { LoaderCircle, UserRoundPlus, UsersRound } from "lucide-react";
 import React, { useState } from "react";
 import { AppSelect } from "../others/app-select";
 import { useGetCompanies } from "src/hooks/companies/useGetCompanies";
@@ -8,12 +8,14 @@ import { useReplaceCompanyAdmin } from "src/hooks/companies/useReplaceCompanyAdm
 import { toast } from "sonner";
 import { useGetRoles } from "src/hooks/roles/useGetRoles";
 import { isAxiosError } from "axios";
+import { motion, useReducedMotion } from "motion/react";
 
 const AsideChangeOwners = () => {
   const { data } = useGetCompanies();
   const { data: users = [] } = useSystemUsers();
   const { data: roles = [] } = useGetRoles();
   const { mutate, isPending } = useReplaceCompanyAdmin();
+  const reduceMotion = useReducedMotion();
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(
     null,
@@ -89,6 +91,7 @@ const AsideChangeOwners = () => {
 
           <AppSelect
             id="companyId"
+            disabled={isPending}
             value={selectedCompanyId}
             onChange={(companyId) => {
               setSelectedCompanyId(companyId);
@@ -108,7 +111,7 @@ const AsideChangeOwners = () => {
           />
         </label>
 
-        <fieldset>
+        <fieldset disabled={isPending}>
           <legend className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#626d7e]">
             Rahbar nomzodi
           </legend>
@@ -158,22 +161,35 @@ const AsideChangeOwners = () => {
                     </span>
                   </span>
 
-                  <span className="flex size-[18px] items-center justify-center rounded-full border border-[#cdd2da] bg-white after:size-2 after:rounded-full peer-checked:border-[#e8622a] peer-checked:after:bg-[#e8622a]" />
+                  <span className="flex size-4.5 items-center justify-center rounded-full border border-[#cdd2da] bg-white after:size-2 after:rounded-full peer-checked:border-[#e8622a] peer-checked:after:bg-[#e8622a]" />
                 </label>
               );
             })}
           </div>
         </fieldset>
 
-        <button
+        <motion.button
           type="button"
           onClick={handleSubmit}
-          disabled={isPending}
-          className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#e8622a] px-4 text-[13px] font-semibold text-white transition hover:bg-[#d85620] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8622a] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isPending || !selectedCompanyId || !selectedUserId}
+          aria-busy={isPending}
+          whileTap={reduceMotion || isPending ? undefined : { scale: 0.97 }}
+          transition={{ duration: 0.15 }}
+          className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#e8622a] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#d85620] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e8622a] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <UsersRound aria-hidden="true" className="size-4" />
-          {isPending ? "Tayinlanmoqda..." : "Rahbarni tayinlash"}
-        </button>
+          {isPending ? (
+            <LoaderCircle
+              aria-hidden="true"
+              className="size-4 animate-spin motion-reduce:animate-none"
+            />
+          ) : (
+            <UsersRound aria-hidden="true" className="size-4" />
+          )}
+
+          <span aria-live="polite">
+            {isPending ? "Tayinlanmoqda..." : "Rahbarni tayinlash"}
+          </span>
+        </motion.button>
       </div>
     </aside>
   );

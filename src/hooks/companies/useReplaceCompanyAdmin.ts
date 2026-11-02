@@ -7,22 +7,24 @@ export const useReplaceCompanyAdmin = () => {
 
   return useMutation({
     mutationFn: replaceCompanyAdmin,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["companies"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["company", variables.id],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["system-users"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["roles"],
-      });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["companies"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["company", variables.id],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["system-users"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["users"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["roles"],
+        }),
+      ]);
     },
     onError: (error) => {
       const responseData = isAxiosError(error)

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { toolbarExcludedRoutes } from "src/data/dashboard-toolbar";
 
@@ -11,15 +11,19 @@ import type { Company } from "src/types/company";
 import CompanyEditModal from "./company-edit-modal";
 import CompanyFormModal from "./company-form-modal";
 import { useIsSuperAdmin } from "src/hooks/useIsSuperAdmin";
+import FilterDate from "./filter-date";
 
 export function DashboardToolbar() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [companyId, setCompanyId] = useState("all");
   const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null);
   const isSuperAdmin = useIsSuperAdmin();
   const isExcluded = toolbarExcludedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
+
+  const companyId = searchParams.get("companyId") ?? "all";
 
   const { data: apiCompanies = [] } = useGetCompanies(
     isSuperAdmin && !isExcluded,
@@ -37,6 +41,22 @@ export function DashboardToolbar() {
 
   if (isExcluded || !isSuperAdmin) return null;
 
+  const handleCompanyChange = (selectedCompanyId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (selectedCompanyId === "all") {
+      params.delete("companyId");
+    } else {
+      params.set("companyId", selectedCompanyId);
+    }
+
+    const query = params.toString();
+
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
+  };
+
   return (
     <div className="space-y-3 px-6 pb-4">
       <section
@@ -46,7 +66,7 @@ export function DashboardToolbar() {
         <CompanyFilter
           companies={companies}
           value={companyId}
-          onChange={setCompanyId}
+          onChange={handleCompanyChange}
           onEdit={(id) => {
             const selectedCompany = apiCompanies.find(
               (company) => company.id === id,
@@ -58,7 +78,7 @@ export function DashboardToolbar() {
 
         <CompanyFormModal />
       </section>
-      {/* <FilterDate /> */}
+      <FilterDate />
 
       {companyToEdit && (
         <CompanyEditModal
