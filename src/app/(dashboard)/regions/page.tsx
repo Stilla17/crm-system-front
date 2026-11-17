@@ -1,5 +1,9 @@
-const Regions = () => {
-  return <div>page</div>;
-};
+import { UzbekistanMap } from "src/components/regions/uzbekistan-map";
 
-export default Regions;
+export default function Regions() {
+  return (
+    <div className="px-6 pb-6">
+      <UzbekistanMap />
+    </div>
+  );
+}

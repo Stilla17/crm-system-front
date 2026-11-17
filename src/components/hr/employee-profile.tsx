@@ -26,6 +26,8 @@ import { profileTabs, syncMeta } from "src/data/employee";
 import { formatDateTime } from "src/lib/formatter-phone";
 import { getErrorMessage } from "src/lib/error";
 import ProfileHeader from "../profile/ProfileHeader";
+import { EmployeeAttendance } from "./employee-attendance";
+import { EmployeeSalary } from "./employee-salary";
 
 type EmployeeProfileProps = {
   employeeId: string;
@@ -272,25 +274,35 @@ export function EmployeeProfile({ employeeId }: EmployeeProfileProps) {
         </div>
       </div>
 
-      {profileTabs
-        .filter((tab) => tab.id !== "general")
-        .map((tab) => (
-          <section
-            key={tab.id}
-            id={`employee-panel-${tab.id}`}
-            role="tabpanel"
-            aria-labelledby={`employee-tab-${tab.id}`}
-            hidden={activeTab !== tab.id}
-            className="mt-4 rounded-[17px] border border-[#e0e3e9] bg-white p-6"
-          >
-            <h2 className="text-[15px] font-semibold text-[#20252c]">
-              {tab.label}
-            </h2>
-            <p className="mt-2 text-[13px] text-[#7a8595]">
-              Ushbu bo‘lim ma’lumotlari hozircha ulanmagan.
-            </p>
-          </section>
-        ))}
+      {activeTab === "general" && (
+        <>
+          <EmployeeAttendance
+            employeeId={employee.id}
+            companyId={companyId ?? undefined}
+            embedded
+          />
+          <EmployeeSalary
+            employeeId={employee.id}
+            companyId={companyId ?? undefined}
+            embedded
+          />
+        </>
+      )}
+
+      {activeTab === "attendance" && (
+        <EmployeeAttendance
+          employeeId={employee.id}
+          companyId={companyId ?? undefined}
+        />
+      )}
+
+      {activeTab === "salary" && (
+        <EmployeeSalary
+          employeeId={employee.id}
+          companyId={companyId ?? undefined}
+        />
+      )}
+
     </div>
   );
 }

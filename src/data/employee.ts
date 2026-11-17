@@ -26,5 +26,4 @@ export const profileTabs = [
   { id: "general", label: "Umumiy ma’lumot" },
   { id: "attendance", label: "Davomat" },
   { id: "salary", label: "Ish haqi" },
-  { id: "documents", label: "Hujjatlar" },
 ] as const;

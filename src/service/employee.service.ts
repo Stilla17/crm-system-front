@@ -7,6 +7,14 @@ import type {
   ImportVerifixEmployeesResult,
   UpdateEmployeePayload,
 } from "src/types/employee.type";
+import type {
+  EmployeeAttendanceParams,
+  EmployeeAttendanceResponse,
+} from "src/types/attendance.type";
+import {
+  EmployeeSalaryParams,
+  EmployeeSalaryResponse,
+} from "src/types/salary.type";
 
 export const getEmployees = async (
   params: EmployeeListParams,
@@ -42,6 +50,19 @@ export const getCompanyEmployee = async (
   const response = await api.get<EmployeeRecord>(
     `/companies/${companyId}/employees/${employeeId}`,
   );
+  return response.data;
+};
+
+export const getEmployeeAttendance = async (
+  employeeId: string,
+  params: EmployeeAttendanceParams,
+  companyId?: string,
+): Promise<EmployeeAttendanceResponse> => {
+  const path = companyId
+    ? `/companies/${companyId}/employees/${employeeId}/attendance`
+    : `/employees/${employeeId}/attendance`;
+  const response = await api.get<EmployeeAttendanceResponse>(path, { params });
+
   return response.data;
 };
 
@@ -103,5 +124,22 @@ export const getSystemEmployees = async (
   const response = await api.get<EmployeeListResponse>("/system/employees", {
     params,
   });
+  return response.data;
+};
+
+export const getEmployeeSalary = async (
+  employeeId: string,
+  params: EmployeeSalaryParams,
+  companyId?: string,
+): Promise<EmployeeSalaryResponse> => {
+  const path = companyId
+    ? `/companies/${companyId}/employees/${employeeId}/salary`
+    : `/employees/${employeeId}/salary`;
+
+  const response = await api.get<EmployeeSalaryResponse>(path, {
+    params,
+    timeout: 100_000,
+  });
+
   return response.data;
 };
