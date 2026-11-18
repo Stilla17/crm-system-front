@@ -40,3 +40,5 @@ export type MoyskladBranch = {
   monthlyPlan: number;
   result: number;
 };
+
+export type MoyskladSalesType = "all" | "shipment" | "retail";

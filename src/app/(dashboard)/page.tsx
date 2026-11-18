@@ -7,7 +7,7 @@ export default function Home() {
     <div className="px-6 pb-6">
       <HomeMetrics />
       <div className="mt-6 ">
-        <UzbekistanMap />
+        {/* <UzbekistanMap /> */}
         <SalesPlanTable />
       </div>
     </div>

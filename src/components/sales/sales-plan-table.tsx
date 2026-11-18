@@ -1,8 +1,17 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { LoaderCircle, Save } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { useMoyskladBranches } from "src/hooks/moysklad/useMoyskladBranches";
+import { useSaveBranchPlan } from "src/hooks/moysklad/useSaveBranchPlan";
 import { getDefaultDates } from "src/lib/employee-profile-formatters";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { AppSelect, type SelectOption } from "src/components/others/app-select";
+
+import { getMoyskladSalesType } from "src/lib/moysklad";
+import type { MoyskladSalesType } from "src/types/moysklad.type";
 
 type SalesPlanItem = {
   id: string;
@@ -12,12 +21,18 @@ type SalesPlanItem = {
   result: number;
 };
 
+const SALES_TYPE_OPTIONS: readonly SelectOption<MoyskladSalesType>[] = [
+  { value: "all", label: "Все" },
+  { value: "shipment", label: "Отгрузка" },
+  { value: "retail", label: "Продажа" },
+];
+
 const numberFormatter = new Intl.NumberFormat("uz-UZ");
 
 function getProgress(result: number, plan: number) {
   if (plan <= 0) return 0;
 
-  return Math.min(Math.round((result / plan) * 100), 100);
+  return Math.round((result / plan) * 100);
 }
 
 function getProgressColor(progress: number) {
@@ -28,15 +43,20 @@ function getProgressColor(progress: number) {
 }
 
 export function SalesPlanTable() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const salesType = getMoyskladSalesType(searchParams.get("type"));
   const defaultDates = getDefaultDates();
   const from = searchParams.get("from") ?? defaultDates.from;
   const to = searchParams.get("to") ?? defaultDates.to;
   const {
     data: branches = [],
     isLoading,
+    isFetching,
     isError,
-  } = useMoyskladBranches(from, to);
+  } = useMoyskladBranches(from, to, salesType);
 
   const salesPlanItems: SalesPlanItem[] = branches.map((branch) => ({
     id: branch.id,
@@ -61,12 +81,82 @@ export function SalesPlanTable() {
 
   const totalProgress = getProgress(totals.result, totals.monthlyPlan);
 
+  const month = from.slice(0, 7);
+  const [draftPlans, setDraftPlans] = useState<Record<string, string>>({});
+  const [savingBranchIds, setSavingBranchIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const savePlan = useSaveBranchPlan(from, to, salesType);
+
+  const handleSavePlan = (item: SalesPlanItem) => {
+    const draftKey = `${month}:${item.id}`;
+    const inputValue = draftPlans[draftKey] ?? String(item.monthlyPlan);
+
+    if (inputValue.trim() === "") {
+      toast.error("Reja summasini kiriting");
+      return;
+    }
+
+    const amount = Number(inputValue);
+
+    if (!Number.isFinite(amount) || amount < 0) {
+      toast.error("Reja summasini to'g'ri kiriting");
+      return;
+    }
+
+    setSavingBranchIds((current) => new Set(current).add(item.id));
+
+    savePlan.mutate(
+      {
+        retailStoreId: item.id,
+        month,
+        amount,
+      },
+      {
+        onSuccess: () => {
+          setDraftPlans((current) => {
+            const next = { ...current };
+            delete next[draftKey];
+            return next;
+          });
+          toast.success(`${item.department} rejasi saqlandi`);
+        },
+
+        onError: () => {
+          toast.error("Oylik rejani saqlab bo'lmadi");
+        },
+        onSettled: () => {
+          setSavingBranchIds((current) => {
+            const next = new Set(current);
+            next.delete(item.id);
+            return next;
+          });
+        },
+      },
+    );
+  };
+
+  const handleSalesTypeChange = (value: MoyskladSalesType) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("type", value);
+
+    router.replace(`${pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+  };
+
   if (isLoading) {
-    return <div>Ma'muotlar yuklanmoqda......</div>;
+    return (
+      <div className="mt-4 flex min-h-40 items-center justify-center rounded-[18px] border border-[#dfe2e7] bg-white text-sm text-[#747d89]">
+        <LoaderCircle className="mr-2 size-4 animate-spin" />
+        {"Ma'lumotlar yuklanmoqda..."}
+      </div>
+    );
   }
 
   if (isError) {
-    return <p className="p-5 text-red-600">Ma'lumotlar olib bo‘lmadi</p>;
+    return <p className="p-5 text-red-600">{"Ma'lumotlarni olib bo‘lmadi"}</p>;
   }
 
   return (
@@ -76,13 +166,29 @@ export function SalesPlanTable() {
           <h2 className="text-[15px] font-semibold text-[#20242a]">
             Reja va bajarilish
           </h2>
-          <p className="mt-1 max-w-[600px] text-[12px] leading-5 text-[#747d89]">
-            Har bir bo‘limning rejasi, natijasi va rejagacha qolgan summasi.
+          <p className="mt-1 max-w-150 text-[12px] leading-5 text-[#747d89]">
+            Har bir filialning rejasi, natijasi va rejagacha qolgan summasi.
           </p>
         </div>
 
+        <div className="w-37.5">
+          <AppSelect<MoyskladSalesType>
+            value={salesType}
+            onChange={handleSalesTypeChange}
+            options={SALES_TYPE_OPTIONS}
+            className="h-9! rounded-[9px] bg-white!"
+          />
+        </div>
+
         <span className="inline-flex h-6 min-w-[160px] items-center rounded-[7px] bg-[#e4f2ed] px-3 text-[11px] font-medium text-[#3f7c69] sm:min-w-[320px]">
-          real
+          {isFetching ? (
+            <>
+              <LoaderCircle className="mr-2 size-3 animate-spin" />
+              {"Ma'lumot yangilanmoqda..."}
+            </>
+          ) : (
+            "Ma'lumot yangilangan"
+          )}
         </span>
       </div>
 
@@ -101,9 +207,22 @@ export function SalesPlanTable() {
           </thead>
 
           <tbody className="divide-y divide-[#eceef1]">
+            {salesPlanItems.length === 0 && (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-2 py-10 text-center text-[#747d89]"
+                >
+                  Tanlangan davr uchun filiallar natijasi topilmadi.
+                </td>
+              </tr>
+            )}
+
             {salesPlanItems.map((item) => {
               const remaining = Math.max(item.monthlyPlan - item.result, 0);
               const progress = getProgress(item.result, item.monthlyPlan);
+              const draftKey = `${month}:${item.id}`;
+              const isSaving = savingBranchIds.has(item.id);
 
               return (
                 <tr
@@ -118,8 +237,40 @@ export function SalesPlanTable() {
                       {item.type}
                     </span>
                   </td>
-                  <td className="px-2 py-4 text-right tabular-nums text-[#30343a]">
-                    {numberFormatter.format(item.monthlyPlan)}
+                  <td className="px-2 py-3">
+                    <div className="flex min-w-[190px] items-center justify-end gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        step={1000}
+                        value={
+                          draftPlans[draftKey] ?? String(item.monthlyPlan || "")
+                        }
+                        onChange={(event) => {
+                          setDraftPlans((current) => ({
+                            ...current,
+                            [draftKey]: event.target.value,
+                          }));
+                        }}
+                        placeholder="Reja kiriting"
+                        aria-label={`${item.department} oylik rejasi`}
+                        className="h-9 w-[140px] rounded-[8px] border border-[#d9dee7] bg-white px-3 text-right text-[13px] tabular-nums outline-none transition focus:border-[#e8622a] focus:ring-4 focus:ring-[#e8622a]/10"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => handleSavePlan(item)}
+                        disabled={isSaving}
+                        aria-label={`${item.department} rejasini saqlash`}
+                        className="flex size-9 cursor-pointer items-center justify-center rounded-[8px] bg-[#e8622a] text-white transition hover:bg-[#cf5422] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {isSaving ? (
+                          <LoaderCircle className="size-4 animate-spin" />
+                        ) : (
+                          <Save className="size-4" />
+                        )}
+                      </button>
+                    </div>
                   </td>
                   <td className="px-2 py-4 text-right font-semibold tabular-nums text-[#282c31]">
                     {numberFormatter.format(item.result)}
@@ -131,7 +282,7 @@ export function SalesPlanTable() {
                     <div className="h-2 overflow-hidden rounded-full bg-[#f0f1f3]">
                       <div
                         className={`h-full rounded-full ${getProgressColor(progress)}`}
-                        style={{ width: `${progress}%` }}
+                        style={{ width: `${Math.min(progress, 100)}%` }}
                       />
                     </div>
                   </td>
@@ -167,7 +318,7 @@ export function SalesPlanTable() {
                 <div className="h-2 overflow-hidden rounded-full bg-[#eceef0]">
                   <div
                     className={`h-full rounded-full ${getProgressColor(totalProgress)}`}
-                    style={{ width: `${totalProgress}%` }}
+                    style={{ width: `${Math.min(totalProgress, 100)}%` }}
                   />
                 </div>
               </td>
