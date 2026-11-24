@@ -1,6 +1,7 @@
 "use client";
 
-import { LoaderCircle, Save } from "lucide-react";
+import { ChevronRight, Download, LoaderCircle, Save } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMoyskladBranches } from "src/hooks/moysklad/useMoyskladBranches";
@@ -11,12 +12,15 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AppSelect, type SelectOption } from "src/components/others/app-select";
 
 import { getMoyskladSalesType } from "src/lib/moysklad";
+import { exportSalesPlanExcel } from "src/lib/export-sales-plan-excel";
+import { getBranchSlug } from "src/lib/branch-slug";
 import type { MoyskladSalesType } from "src/types/moysklad.type";
 
 type SalesPlanItem = {
   id: string;
   department: string;
   type: string;
+  hasProductDetails: boolean;
   monthlyPlan: number;
   result: number;
 };
@@ -48,6 +52,7 @@ export function SalesPlanTable() {
   const searchParams = useSearchParams();
 
   const salesType = getMoyskladSalesType(searchParams.get("type"));
+  const companyId = searchParams.get("companyId") ?? undefined;
   const defaultDates = getDefaultDates();
   const from = searchParams.get("from") ?? defaultDates.from;
   const to = searchParams.get("to") ?? defaultDates.to;
@@ -56,12 +61,13 @@ export function SalesPlanTable() {
     isLoading,
     isFetching,
     isError,
-  } = useMoyskladBranches(from, to, salesType);
+  } = useMoyskladBranches(from, to, salesType, companyId);
 
   const salesPlanItems: SalesPlanItem[] = branches.map((branch) => ({
     id: branch.id,
     department: branch.name,
     type: "Filial",
+    hasProductDetails: branch.hasProductDetails,
     monthlyPlan: Number(branch.monthlyPlan ?? 0),
     result: Number(branch.result ?? 0),
   }));
@@ -86,7 +92,20 @@ export function SalesPlanTable() {
   const [savingBranchIds, setSavingBranchIds] = useState<Set<string>>(
     () => new Set(),
   );
-  const savePlan = useSaveBranchPlan(from, to, salesType);
+  const [isExporting, setIsExporting] = useState(false);
+  const savePlan = useSaveBranchPlan(from, to, salesType, companyId);
+
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      await exportSalesPlanExcel({ from, to, items: salesPlanItems });
+      toast.success("Excel hisoboti yuklab olindi");
+    } catch {
+      toast.error("Excel hisobotini yaratib bo‘lmadi");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleSavePlan = (item: SalesPlanItem) => {
     const draftKey = `${month}:${item.id}`;
@@ -171,13 +190,29 @@ export function SalesPlanTable() {
           </p>
         </div>
 
-        <div className="w-37.5">
-          <AppSelect<MoyskladSalesType>
-            value={salesType}
-            onChange={handleSalesTypeChange}
-            options={SALES_TYPE_OPTIONS}
-            className="h-9! rounded-[9px] bg-white!"
-          />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            disabled={isExporting || salesPlanItems.length === 0}
+            className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-[9px] bg-[#167c4f] px-3 text-xs font-semibold text-white transition hover:bg-[#11643f] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isExporting ? (
+              <LoaderCircle className="size-4 animate-spin" />
+            ) : (
+              <Download className="size-4" />
+            )}
+            Excel yuklab olish
+          </button>
+
+          <div className="w-37.5">
+            <AppSelect<MoyskladSalesType>
+              value={salesType}
+              onChange={handleSalesTypeChange}
+              options={SALES_TYPE_OPTIONS}
+              className="h-9! rounded-[9px] bg-white!"
+            />
+          </div>
         </div>
 
         <span className="inline-flex h-6 min-w-[160px] items-center rounded-[7px] bg-[#e4f2ed] px-3 text-[11px] font-medium text-[#3f7c69] sm:min-w-[320px]">
@@ -218,7 +253,7 @@ export function SalesPlanTable() {
               </tr>
             )}
 
-            {salesPlanItems.map((item) => {
+            {salesPlanItems.map((item, index) => {
               const remaining = Math.max(item.monthlyPlan - item.result, 0);
               const progress = getProgress(item.result, item.monthlyPlan);
               const draftKey = `${month}:${item.id}`;
@@ -230,7 +265,19 @@ export function SalesPlanTable() {
                   className="transition-colors hover:bg-[#fafbfc]"
                 >
                   <td className="px-2 py-4 font-semibold text-[#2a2e34]">
-                    {item.department}
+                    {item.hasProductDetails ? (
+                      <Link
+                        href={`/sales/branches/${getBranchSlug(item.department)}?${searchParams.toString()}`}
+                        className="inline-flex items-center gap-1.5 hover:text-[#e8622a]"
+                      >
+                        {index + 1}. {item.department}
+                        <ChevronRight className="size-4" />
+                      </Link>
+                    ) : (
+                      <span>
+                        {index + 1}. {item.department}
+                      </span>
+                    )}
                   </td>
                   <td className="px-2 py-4">
                     <span className="rounded-[6px] bg-[#f0f1f3] px-2 py-1 text-[11px] text-[#747b85]">

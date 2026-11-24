@@ -20,6 +20,10 @@ export const useUpdateCompany = () => {
       queryClient.invalidateQueries({
         queryKey: ["company", updatedCompany.id],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["moysklad", "branches"],
+      });
     },
   });
 };

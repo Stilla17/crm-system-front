@@ -9,9 +9,17 @@ export const useSaveBranchPlan = (
   from: string,
   to: string,
   type: MoyskladSalesType,
+  companyId?: string,
 ) => {
   const queryClient = useQueryClient();
-  const queryKey = ["moysklad", "branches", from, to, type] as const;
+  const queryKey = [
+    "moysklad",
+    "branches",
+    from,
+    to,
+    type,
+    companyId,
+  ] as const;
 
   return useMutation({
     mutationKey: ["moysklad", "branch-plan"],

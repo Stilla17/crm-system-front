@@ -4,12 +4,12 @@ export const homeMetrics: HomeMetric[] = [
   {
     id: "sales", title: "Umumiy savdo", value: "0",
     description: "bo‘limlar yig‘indisi", variant: "orange",
-    trend: { value: "6,1%", direction: "down", tone: "negative" },
+    // trend: { value: "6,1%", direction: "down", tone: "negative" },
   },
   {
     id: "profit", title: "Sof foyda", value: "229,3 mln",
     description: "33,8% marja",
-    trend: { value: "2,5%", direction: "down", tone: "negative" },
+    // trend: { value: "2,5%", direction: "down", tone: "negative" },
   },
   {
     id: "customers", title: "Kirgan mijoz", value: "9 755", unit: "ta",
@@ -26,7 +26,7 @@ export const homeMetrics: HomeMetric[] = [
   {
     id: "debt", title: "Mijoz qarzi", value: "84,6 mln",
     description: "tovar olib to‘lamaganlar", variant: "dark",
-    trend: { value: "156,3%", direction: "up", tone: "positive" },
+    // trend: { value: "156,3%", direction: "up", tone: "positive" },
   },
   {
     id: "expenses", title: "Yozilgan xarajat", value: "8,6 mln",

@@ -6,10 +6,11 @@ export const useMoyskladBranches = (
   from: string,
   to: string,
   type: MoyskladSalesType,
+  companyId?: string,
 ) => {
   return useQuery({
-    queryKey: ["moysklad", "branches", from, to, type],
-    queryFn: () => getMoyskladBranches(from, to, type),
+    queryKey: ["moysklad", "branches", from, to, type, companyId],
+    queryFn: () => getMoyskladBranches(from, to, type, companyId),
     enabled: Boolean(from && to),
 
     staleTime: 10 * 60 * 1000,

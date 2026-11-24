@@ -12,6 +12,7 @@ export type Company = {
   admin?: Admin | null;
   companyName: string;
   brandColor: string;
+  moyskladOrganizationIds: string[];
   slug: string;
   type: CompanyType;
   status: CompanyStatus;
@@ -35,6 +36,7 @@ export type CompanyFormValues = {
   companyName: string;
   type: CompanyType;
   brandColor: string;
+  moyskladOrganizationIds: string[];
 };
 
 export interface Props {

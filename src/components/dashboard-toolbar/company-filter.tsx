@@ -159,7 +159,7 @@ export function CompanyFilter({
           );
         })}
       </div>
-
+      
       <CustomModal
         title="Kompaniyani o‘chirish"
         description={`“${companyToDelete?.label ?? ""}” kompaniyasini o‘chirishni xohlaysizmi?`}

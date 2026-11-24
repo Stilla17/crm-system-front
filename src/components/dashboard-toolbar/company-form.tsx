@@ -10,6 +10,7 @@ import {
 
 import { AppSelect } from "../others/app-select";
 import { Check } from "lucide-react";
+import { useMoyskladOrganizations } from "src/hooks/moysklad/useMoyskladOrganizations";
 
 // Tavsiya etiladigan chiroyli brend ranglar palitrasi
 const PRESET_COLORS = [
@@ -28,6 +29,8 @@ export default function CompanyForm({
   submitLabel,
   onSubmit,
 }: CompanyFormProps) {
+  const { data: organizations = [], isLoading: isOrganizationsLoading } =
+    useMoyskladOrganizations();
   const {
     register,
     handleSubmit,
@@ -93,6 +96,60 @@ export default function CompanyForm({
                 </p>
               )}
             </>
+          )}
+        />
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#41383a]">
+          MoySklad tashkilotlari
+        </p>
+
+        <Controller
+          name="moyskladOrganizationIds"
+          control={control}
+          defaultValue={[]}
+          render={({ field }) => (
+            <div className="mt-2 max-h-60 overflow-y-auto rounded-xl border border-[#e1e4e9] bg-[#f9fafb] p-3">
+              {isOrganizationsLoading && (
+                <p className="py-2 text-sm text-[#747d89]">
+                  Tashkilotlar yuklanmoqda...
+                </p>
+              )}
+
+              {!isOrganizationsLoading && organizations.length === 0 && (
+                <p className="py-2 text-sm text-[#747d89]">
+                  MoySklad tashkilotlari topilmadi.
+                </p>
+              )}
+
+              {organizations.map((organization) => {
+                const checked = field.value?.includes(organization.id);
+
+                return (
+                  <label
+                    key={organization.id}
+                    className="flex cursor-pointer items-center gap-2 py-2 text-sm text-[#30272a]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        const current = field.value ?? [];
+
+                        field.onChange(
+                          checked
+                            ? current.filter((id) => id !== organization.id)
+                            : [...current, organization.id],
+                        );
+                      }}
+                    />
+
+                    <span>{organization.name}</span>
+                  </label>
+                );
+              })}
+            </div>
           )}
         />
       </div>

@@ -114,19 +114,6 @@ export function UzbekistanMap() {
           </div>
         </div>
       </div>
-
-      <p className="mt-4 text-right text-[11px] leading-4 text-[#8993a2]">
-        Xarita ma’lumoti:{" "}
-        <a
-          className="underline underline-offset-2 hover:text-[#586273]"
-          href="https://www.geoboundaries.org/"
-          rel="noreferrer"
-          target="_blank"
-        >
-          geoBoundaries
-        </a>{" "}
-        · ODbL 1.0
-      </p>
     </section>
   );
 }

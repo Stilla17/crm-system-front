@@ -32,6 +32,7 @@ const CompanyEditModal = ({ company, open, onClose }: Props) => {
           companyName: company.companyName,
           type: company.type,
           brandColor: company.brandColor,
+          moyskladOrganizationIds: company.moyskladOrganizationIds ?? [],
         }}
         isSubmitting={isPending}
         submitLabel="Saqlash"
